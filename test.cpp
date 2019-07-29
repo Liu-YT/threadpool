@@ -15,7 +15,7 @@ public:
 
 
 int main() {
-    ThreadPool<Task> pool(4);
+    ThreadPool<Task*> pool(4);
     
     vector<Task*> tasks;
     for(int i = 0; i < TASKSNUM; i++) {
