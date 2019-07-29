@@ -21,10 +21,10 @@ public:
     // 添加任务
     bool addTask(T* task);
     
-private:
     // 工作线程运行函数
-    void *work(void *arg);
+    static void *work(void *arg);
 
+private:
     void run();
 
     // 追踪工作线程    
@@ -99,7 +99,7 @@ void ThreadPool<T>::run()
         tasks.pop();
         if (task)
         {
-            std::cout << "Thread " << getpid() << " ";
+            std::cout << "Thread " << pthread_self() << " ";
             task->process();
         }
     }
