@@ -86,22 +86,26 @@ void *ThreadPool::work(void *arg)
 
 void ThreadPool::run()
 {
-    while (!stop)
+    while (true)
     {
-        std::unique_lock<std::mutex> lock(queueMutex);
-        condition.wait(lock, [this] { return !this->tasks.empty(); });
-        if (tasks.empty())
+        Task task;
         {
-            continue;
+            std::unique_lock<std::mutex> lock(queueMutex);
+            condition.wait(lock, [this] { return !this->tasks.empty() || this->stop; });
+            if (this->stop && this->tasks.empty())
+            {
+                return;
+            }
+            task = std::move(this->tasks.front());
+            this->tasks.pop();
         }
-        Task task = tasks.front();
-        tasks.pop();
-        if (task)
-        {
-            std::this_thread::sleep_for(std::chrono::seconds(1));
-            std::cout << "Thread " << std::this_thread::get_id() << " ";
-            task();
-        }
+        // task();
+
+        // just for test
+        std::cout << "Thread " << std::this_thread::get_id() << " sleep" << std::endl;
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+        std::cout << "Thread " << std::this_thread::get_id() << " ";
+        task();
     }
 }
 #endif
