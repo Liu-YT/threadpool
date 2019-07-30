@@ -3,15 +3,19 @@
 using namespace std;
 #define TASKSNUM 1000
 
-class Task
-{
+// class Task
+// {
 
-public:
-    void process()
-    {
-        cout << "do something" << endl;
-    }
-};
+// public:
+//     void process()
+//     {
+//         cout << "do something" << endl;
+//     }
+// };
+
+void task(int i) {
+    cout << i << endl;
+}
 
 int main()
 {
@@ -20,9 +24,7 @@ int main()
     vector<Task *> tasks;
     for (int i = 0; i < TASKSNUM; i++)
     {
-        Task *task = new Task();
-        pool.addTask(task);
-        delete task;
+        pool.addTask(std::bind(task, i));
     }
     return 0;
 }

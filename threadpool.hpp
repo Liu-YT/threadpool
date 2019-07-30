@@ -11,8 +11,10 @@
 #include <unistd.h>
 #include <stdexcept>
 #include <chrono>
+#include <functional>
 
-template <typename T>
+typedef std::function<void(void)> Task;
+
 class ThreadPool
 {
 public:
@@ -21,7 +23,7 @@ public:
     // 析构函数
     ~ThreadPool();
     // 添加任务
-    bool addTask(T *task);
+    bool addTask(Task task);
 
 private:
     // 工作线程运行函数
@@ -32,7 +34,7 @@ private:
     // 追踪工作线程
     std::vector<std::thread> workers;
     // 任务队列
-    std::queue<T *> tasks;
+    std::queue<Task> tasks;
 
     std::mutex queueMutex;
 
@@ -41,8 +43,7 @@ private:
     bool stop;
 };
 
-template <typename T>
-ThreadPool<T>::ThreadPool(int size) : stop(false)
+ThreadPool::ThreadPool(int size) : stop(false)
 {
     if (size <= 0)
     {
@@ -54,8 +55,7 @@ ThreadPool<T>::ThreadPool(int size) : stop(false)
     }
 }
 
-template <typename T>
-ThreadPool<T>::~ThreadPool()
+ThreadPool::~ThreadPool()
 {
     {
         std::unique_lock<std::mutex> lock(queueMutex);
@@ -68,8 +68,7 @@ ThreadPool<T>::~ThreadPool()
     }
 }
 
-template <typename T>
-bool ThreadPool<T>::addTask(T *task)
+bool ThreadPool::addTask(Task task)
 {
     queueMutex.lock();
     tasks.push(task);
@@ -78,16 +77,14 @@ bool ThreadPool<T>::addTask(T *task)
     return true;
 }
 
-template <typename T>
-void *ThreadPool<T>::work(void *arg)
+void *ThreadPool::work(void *arg)
 {
     ThreadPool *pool = (ThreadPool *)arg;
     pool->run();
     return pool;
 }
 
-template <typename T>
-void ThreadPool<T>::run()
+void ThreadPool::run()
 {
     while (!stop)
     {
@@ -97,13 +94,13 @@ void ThreadPool<T>::run()
         {
             continue;
         }
-        T *task = tasks.front();
+        Task task = tasks.front();
         tasks.pop();
         if (task)
         {
             std::this_thread::sleep_for(std::chrono::seconds(1));
             std::cout << "Thread " << std::this_thread::get_id() << " ";
-            task->process();
+            task();
         }
     }
 }
