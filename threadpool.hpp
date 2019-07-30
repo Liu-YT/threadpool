@@ -10,27 +10,29 @@
 #include <iostream>
 #include <unistd.h>
 #include <stdexcept>
+#include <chrono>
 
 template <typename T>
-class ThreadPool {
+class ThreadPool
+{
 public:
     // 构造函数
     ThreadPool(int);
     // 析构函数
     ~ThreadPool();
     // 添加任务
-    bool addTask(T* task);
-    
+    bool addTask(T *task);
+
+private:
     // 工作线程运行函数
     static void *work(void *arg);
 
-private:
     void run();
 
-    // 追踪工作线程    
+    // 追踪工作线程
     std::vector<std::thread> workers;
     // 任务队列
-    std::queue<T*> tasks;
+    std::queue<T *> tasks;
 
     std::mutex queueMutex;
 
@@ -99,7 +101,8 @@ void ThreadPool<T>::run()
         tasks.pop();
         if (task)
         {
-            std::cout << "Thread " << pthread_self() << " ";
+            std::this_thread::sleep_for(std::chrono::seconds(1));
+            std::cout << "Thread " << std::this_thread::get_id() << " ";
             task->process();
         }
     }

@@ -1,27 +1,25 @@
 #include "threadpool.hpp"
 #include <iostream>
-#include <unistd.h>
 using namespace std;
-#define TASKSNUM 100
+#define TASKSNUM 1000
 
-
-class Task {
+class Task
+{
 
 public:
-    void process() {
-        cout << "sleep" << endl;
-        sleep(10);
+    void process()
+    {
         cout << "do something" << endl;
     }
-
 };
 
-
-int main() {
+int main()
+{
     ThreadPool<Task> pool(4);
-    
-    vector<Task*> tasks;
-    for(int i = 0; i < TASKSNUM; i++) {
+
+    vector<Task *> tasks;
+    for (int i = 0; i < TASKSNUM; i++)
+    {
         Task *task = new Task();
         pool.addTask(task);
         delete task;
