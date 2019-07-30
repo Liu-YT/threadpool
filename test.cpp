@@ -19,9 +19,8 @@ void task(int i) {
 
 int main()
 {
-    ThreadPool<Task> pool(4);
+    ThreadPool pool(4);
 
-    vector<Task *> tasks;
     for (int i = 0; i < TASKSNUM; i++)
     {
         pool.addTask(std::bind(task, i));
